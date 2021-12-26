@@ -3,7 +3,7 @@ import matplotlib.cm as cm
 import numpy as np
 from sklearn.metrics import silhouette_samples, silhouette_score
 from sklearn.cluster import MeanShift, estimate_bandwidth
-from utils.mean_shift_cosine_gpu import MeanShiftCosine
+
 
 
 def meanshift(image):
@@ -13,10 +13,7 @@ def meanshift(image):
     :return: array that contain clustered labels and varies details about the cluster
     """
     bandwidth = estimate_bandwidth(image, quantile=0.2, n_samples=500)
-
     meanshift = MeanShift(bandwidth=bandwidth, bin_seeding=True, n_jobs=-1)
-    # labels = meanshift.fit_predict(image)
-    meanshift = MeanShiftCosine(bandwidth=bandwidth, GPU=True)
     labels = meanshift.fit_predict(image)
 
     return [meanshift, labels, meanshift.cluster_centers_]

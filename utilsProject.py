@@ -38,7 +38,7 @@ def pre_process(img_original,segment):
 
     # img_original = cv2.imread(PATH)
     img= img_original
-    if segment: img = cv2.cvtColor(img_original, cv2.COLOR_BGR2RGB)
+    #if segment: img = cv2.cvtColor(img_original, cv2.COLOR_BGR2RGB)
 
     # plt.imshow(img)
     img_post = resize(img,segment)
@@ -48,7 +48,7 @@ def RGB2HEX(color):
     return "#{:02x}{:02x}{:02x}".format(int(color[0]), int(color[1]), int(color[2]))
 
 
-def post_processing(image,cluster, labels, segment):
+def post_processing(image,cluster, labels):
 
     """
 
@@ -65,17 +65,6 @@ def post_processing(image,cluster, labels, segment):
     center_colors = cluster.cluster_centers_
 
     center_colors = center_colors.tolist()
-
-
-    # # print(center_colors)
-    # if segment:
-    #     updated_counts = {}
-    #     del counts[0]
-    #     for i in range(len(counts)):
-    #         updated_counts[i]=counts[i+1]
-    #     counts = updated_counts
-    #     center_colors.pop(0)
-
 
     ordered_colors = [center_colors[i] for i in counts.keys()]
 

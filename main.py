@@ -1,8 +1,7 @@
 import time
 
 from clustering import meanshift
-from clustering import sillhouttle_analysis
-from objectSegmentation import seperate_objs_from_image
+import matplotlib.pyplot as plt
 from utilsProject import pre_process
 from utilsProject import post_processing
 from PIL import Image
@@ -10,10 +9,11 @@ from utilsProject import convert_json_to_image
 from utilsProject import convert_from_image_to_cv2
 import cv2
 # import torch
+from predict import segmentation
+from glob import glob
+from tqdm import tqdm
 
-
-def main(image, segment=False, save_extracted_object = False):
-
+def main(images, segment=False, save_extracted_object=False):
     """
 
     :param image:
@@ -29,21 +29,34 @@ def main(image, segment=False, save_extracted_object = False):
 
     global input_image
     if segment:
-        image = image.convert("RGB")
-        segmented_image = seperate_objs_from_image(image,save_extracted_object)
+        # image = image.convert("RGB")
+        segmented_image = segmentation(images,save_extracted_object)
         input_image = segmented_image
-    elif segment== False:
-        input_image = convert_from_image_to_cv2(image)
+    elif segment == False:
+        for name, image in images.items():
+            img = convert_from_image_to_cv2(image)
+            input_image[name] = img
+    # for name, image in images.items():
+    #     plt.imshow(image)
+    #     plt.show()
 
-    input_image = pre_process(input_image, segment)
+    cluster_results = {}
+    for name, image in tqdm(input_image.items(), total=len(images)):
+        input_image[name] = pre_process(image, segment)
 
-    clusters = meanshift(input_image)
+        clusters = meanshift(input_image[name])
+        cluster_results[name] = clusters
+
 
     # sillhouttle_analysis(input_image,clusters[0],clusters[1],len(clusters[2]))
     #
-    json_object = post_processing(image,clusters[0], clusters[1], segment)
 
-    print(json_object)
+    for name, cluster in cluster_results.items():
+
+        json_object = post_processing(images[name], cluster[0], cluster[1])
+
+
+        print(json_object)
 
 
 if __name__ == '__main__':
@@ -51,10 +64,16 @@ if __name__ == '__main__':
     """
     Testing implementation
     """
-    input_image = Image.open('samples/sample3.jpg')
-    print(input_image.size)
+
     t1 = time.perf_counter()
-    main(input_image)
+    inpux_x = glob('samples/*')
+    in_images = {}
+    for path in inpux_x:
+        name = path.split("\\")[-1].split(".")[0]
+
+        image = cv2.imread(path, cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        in_images[name] = image
+    main(in_images,segment=True, save_extracted_object=True)
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')
-
