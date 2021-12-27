@@ -18,7 +18,8 @@ import matplotlib.pyplot as plt
 def resize(image,segment):
     image = cv2.resize(image, (200, 300), interpolation=cv2.INTER_AREA)
     image_data = image.reshape(image.shape[0] * image.shape[1], 3)
-    if segment: image_data = np.array(list(filter(lambda a: a != [0, 0, 0], image_data.tolist())))
+    if segment:
+        image_data = np.array(list(filter(lambda a: a != [0, 0, 0], image_data.tolist())))
     return image_data
 
 
@@ -78,7 +79,7 @@ def post_processing(image,cluster, labels):
     # Convert data color details into json object
     color_data_json = json.dumps(colors_data)
 
-    generate_pie_chart(counts, rgb_colors, [RGB2HEX(ordered_colors[i]) for i in counts.keys()], image)
+    #generate_pie_chart(counts, rgb_colors, [RGB2HEX(ordered_colors[i]) for i in counts.keys()], image)
 
     # Returning analyzed data as a json object
     return color_data_json
